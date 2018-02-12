@@ -1,24 +1,24 @@
 class Ingredient
 
+  @@all = []
+
   attr_accessor :name
 
   def initialize(name)
     @name = name
+    @@all << self
   end
 
   def self.all
-    RecipeIngredient.all.map{|recipeingredient| recipeingredient.ingredient}.uniq
+    @@all
   end
 
-  def self.most_common_allergen
-    counts = Hash.new 0
-    self.all.each do |ingredient|
-      Allergen.all.each do |allergen|
-        if allergen.ingredient == ingredient
-          counts[ingredient] += 1
-        end
-      end
+  def most_common_allergen
+    count = Hash.new 0
+    Allergen.all.each do |allergen|
+      count[allergen.ingredient] += 1
     end
-    counts.sort{|k,v| k[1]<=>v[1]}.last[0]
+    count.sort{|a,b| a[1] <=> b[1]}.last[0]
   end
+
 end

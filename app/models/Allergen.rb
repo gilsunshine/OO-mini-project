@@ -14,8 +14,4 @@ class Allergen
     @@all
   end
 
-  def self.ingredients
-    @@all.map{|allergen| allergen.ingredient}
-  end
-
 end

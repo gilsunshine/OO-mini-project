@@ -1,21 +1,24 @@
 class User
 
+  @@all = []
+
   attr_accessor :name
 
   def initialize(name)
     @name = name
+    @@all << self
   end
 
   def self.all
-    RecipeCard.all.map{|recipecard| recipecard.user}.uniq
+    @@all
   end
 
   def recipes
-    RecipeCard.all.select{|recipecard| recipecard.user == self}.map{|recipecard| recipecard.recipe}
+    RecipeCard.all.select {|recipecard| recipecard.user == self}.map{|recipecard| recipecard.recipe}
   end
 
   def add_recipe_card(recipe, date, rating)
-    RecipeCard.new(self, recipe, date, rating)
+    RecipeCard.new(recipe, self, date, rating)
   end
 
   def declare_allergen(ingredient)
@@ -27,11 +30,27 @@ class User
   end
 
   def top_three_recipes
-    RecipeCard.all.select{|recipecard| recipecard.user == self}.sort_by!{|recipecard| recipecard.rating}.first(3)
+    recipecards = RecipeCard.all.select{|recipecard| recipecard.user == self}
+    recipecards.sort_by{|recipecard| recipecard.rating}.last(3)
   end
 
   def most_recent_recipe
-    RecipeCard.all.select{|recipecard| recipecard.user == self}.sort_by!{|recipecard| recipecard.date}.first
+    RecipeCard.all.sort_by{|recipecard| recipecard.date}.last
   end
 
+  def safe_recipes
+    safe_recipes = Recipe.all
+    Recipe.all.each do |recipe|
+      boolean = false
+      self.allergens.each do |allergen|
+        if recipe.ingredients.include?(allergen)
+          boolean = true
+        end
+      end
+      if boolean == true
+        safe_recipes.delete(recipe)
+      end
+    end
+    safe_recipes
+  end
 end

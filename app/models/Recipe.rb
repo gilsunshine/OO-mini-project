@@ -1,25 +1,24 @@
 class Recipe
 
+  @@all = []
+
   attr_accessor :name
 
   def initialize(name)
     @name = name
+    @@all << self
   end
 
   def self.all
-    RecipeCard.all.map{|recipecard| recipecard.recipe}.uniq
+    @@all
   end
 
   def self.most_popular
-    counts = Hash.new 0
-    self.all.each do |recipe|
-      RecipeCard.all.each do |recipecard|
-        if recipecard.recipe == recipe
-          counts[recipe] += 1
-        end
-      end
+    count = Hash.new 0
+    RecipeCard.all.each do |recipecard|
+      count[recipecard.recipe] += 1
     end
-    counts.sort{|k,v| k[1]<=>v[1]}.last[0]
+    count.sort{|a,b| a[1] <=> b[1]}.last[0]
   end
 
   def users
@@ -31,10 +30,11 @@ class Recipe
   end
 
   def allergens
-    self.ingredients.select{|ingredient| Allergen.ingredients.include?(ingredient)}
+    Allergens.all.select{|allergen| self.ingredients.include?(allergen)}
   end
 
   def add_ingredients(ingredients)
-    ingredients.each{|ingredient| RecipeIngredient.new(self, ingredient)}
+    ingredients.each {|ingredient| RecipeIngredient.new(self, ingredient)}
   end
+
 end
